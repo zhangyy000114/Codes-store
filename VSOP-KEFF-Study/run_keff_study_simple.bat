@@ -1,7 +1,13 @@
 @echo off
 chcp 65001 >nul
 echo ========================================
-echo VSOP KEFF 自动化研究脚本 - 简化版本
+echo VSOP KEFF 自动化研究脚本 - 双参数简化版本
+echo ========================================
+echo 功能特点:
+echo   - 同时修改第77行和第92行参数
+echo   - 自动保持7.95:5的比例关系
+echo   - 无需外部Python依赖包
+echo   - 生成CSV格式结果文件
 echo ========================================
 echo.
 
@@ -14,30 +20,33 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo Python 检查通过
+echo ✅ Python 检查通过
 echo.
 
 :: 检查必要文件
 if not exist "first_begin.i" (
-    echo 错误：找不到输入文件 first_begin.i
+    echo ❌ 错误：找不到输入文件 first_begin.i
     pause
     exit /b 1
 )
 
 if not exist "VSOP99_11-MS.exe" (
-    echo 错误：找不到程序文件 VSOP99_11-MS.exe
+    echo ❌ 错误：找不到程序文件 VSOP99_11-MS.exe
     pause
     exit /b 1
 )
 
-echo 文件检查通过
+echo ✅ 文件检查通过
 echo.
 
-echo 开始运行KEFF研究脚本（简化版本，无需外部依赖）...
+echo 🚀 开始运行KEFF双参数研究脚本...
+echo 提示：脚本将自动计算第92行参数值以保持比例关系
 echo.
 
 python keff_study_simple.py
 
 echo.
-echo 脚本执行完成
+echo 📊 脚本执行完成
+echo 结果文件：keff_study_results.csv
+echo 统计摘要：keff_study_summary.txt
 pause 

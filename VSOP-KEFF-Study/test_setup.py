@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-VSOP KEFF 研究脚本配置测试
-检查必要文件和Python环境
+VSOP KEFF 研究脚本配置测试 - 双参数版本
+检查必要文件和Python环境，验证双参数配置
 """
 
 import os
@@ -10,8 +10,8 @@ import sys
 
 def test_setup():
     """测试配置是否正确"""
-    print("VSOP KEFF 研究脚本配置测试")
-    print("=" * 40)
+    print("VSOP KEFF 研究脚本配置测试 - 双参数版本")
+    print("=" * 50)
     
     success = True
     
@@ -53,30 +53,72 @@ def test_setup():
         else:
             print(f"❌ {file} - 文件不存在")
     
-    # 测试first_begin.i第87行
-    print("\n检查first_begin.i第87行:")
+    # 测试first_begin.i第77行和第92行
+    print("\n检查first_begin.i双参数配置:")
     try:
         with open("first_begin.i", 'r', encoding='utf-8') as f:
             lines = f.readlines()
         
-        if len(lines) >= 87:
-            target_line = lines[86]  # 第87行，索引86
-            print(f"第87行内容: {target_line.strip()}")
+        # 检查第77行
+        if len(lines) >= 77:
+            target_line_77 = lines[76]  # 第77行，索引76
+            print(f"第77行内容: {target_line_77.strip()}")
             
-            parts = target_line.split()
-            if len(parts) >= 2:
+            parts_77 = target_line_77.split()
+            if len(parts_77) >= 2:
                 try:
-                    value = float(parts[1])
-                    print(f"✅ 找到参数值: {value:.6E}")
+                    value_77 = float(parts_77[1])
+                    print(f"✅ 第77行参数值: {value_77:.6E}")
                 except ValueError:
-                    print(f"❌ 无法解析参数值: {parts[1]}")
+                    print(f"❌ 无法解析第77行参数值: {parts_77[1]}")
                     success = False
             else:
-                print("❌ 第87行格式不正确")
+                print("❌ 第77行格式不正确")
                 success = False
         else:
-            print("❌ 文件行数不足87行")
+            print("❌ 文件行数不足77行")
             success = False
+        
+        # 检查第92行
+        if len(lines) >= 92:
+            target_line_92 = lines[91]  # 第92行，索引91
+            print(f"第92行内容: {target_line_92.strip()}")
+            
+            parts_92 = target_line_92.split()
+            if len(parts_92) >= 2:
+                try:
+                    value_92 = float(parts_92[1])
+                    print(f"✅ 第92行参数值: {value_92:.6E}")
+                    
+                    # 验证比例关系
+                    if len(parts_77) >= 2 and len(parts_92) >= 2:
+                        try:
+                            ratio_actual = value_77 / value_92
+                            ratio_expected = 7.95 / 5.0
+                            ratio_diff = abs(ratio_actual - ratio_expected) / ratio_expected * 100
+                            
+                            print(f"比例关系验证:")
+                            print(f"  实际比例: {ratio_actual:.3f}")
+                            print(f"  期望比例: {ratio_expected:.3f}")
+                            print(f"  差异: {ratio_diff:.2f}%")
+                            
+                            if ratio_diff < 1.0:  # 1%的容差
+                                print("✅ 比例关系正确")
+                            else:
+                                print("⚠️  比例关系偏差较大")
+                        except:
+                            print("⚠️  无法验证比例关系")
+                    
+                except ValueError:
+                    print(f"❌ 无法解析第92行参数值: {parts_92[1]}")
+                    success = False
+            else:
+                print("❌ 第92行格式不正确")
+                success = False
+        else:
+            print("❌ 文件行数不足92行")
+            success = False
+            
     except Exception as e:
         print(f"❌ 读取文件出错: {e}")
         success = False
@@ -131,13 +173,33 @@ def test_setup():
             print(f"❌ 测试keff提取时出错: {e}")
             success = False
     
+    # 检查Python包依赖
+    print("\n检查Python包依赖:")
+    packages = [
+        ("pandas", "数据处理（keff_study_automation.py需要）"),
+        ("numpy", "数值计算（keff_study_automation.py需要）"),
+        ("openpyxl", "Excel文件支持（keff_study_automation.py需要）")
+    ]
+    
+    for package, description in packages:
+        try:
+            __import__(package)
+            print(f"✅ {package} - {description}")
+        except ImportError:
+            print(f"⚠️  {package} - {description} - 未安装（简化版本不需要）")
+    
     # 总结
-    print("\n" + "=" * 40)
+    print("\n" + "=" * 50)
     if success:
-        print("✅ 配置检查通过！可以运行KEFF研究脚本")
+        print("✅ 基本配置检查通过！可以运行KEFF研究脚本")
+        print("\n双参数版本特性:")
+        print("  ✅ 同时修改第77行和第92行参数")
+        print("  ✅ 自动保持7.95:5的比例关系")
+        print("  ✅ 完整的双参数结果追踪")
         print("\n推荐运行方式:")
-        print("1. 双击运行: run_keff_study_simple.bat")
-        print("2. 或命令行: python keff_study_simple.py")
+        print("1. 简化版（无需依赖）: run_keff_study_simple.bat")
+        print("2. 完整版（需要pandas）: run_keff_study.bat")
+        print("3. 命令行运行: python keff_study_simple.py")
     else:
         print("❌ 配置检查失败，请修复上述问题后重试")
     
