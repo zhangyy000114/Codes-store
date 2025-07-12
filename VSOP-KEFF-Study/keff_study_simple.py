@@ -16,7 +16,9 @@ class KeffStudySimple:
     def __init__(self):
         self.original_file = "first_begin.i"
         self.program_path = "VSOP99_11-MS.exe"
-        self.target_line = 87  # 目标行号
+        self.target_line_1 = 77  # 第1个目标行号
+        self.target_line_2 = 92  # 第2个目标行号
+        self.ratio = 7.95 / 5.0  # 第1个数据与第2个数据的比例 (7.95:5)
         self.results = []
         
     def backup_original_file(self):
@@ -26,8 +28,12 @@ class KeffStudySimple:
             shutil.copy2(self.original_file, backup_name)
             print(f"已备份原始文件到: {backup_name}")
     
-    def modify_input_file(self, new_value):
-        """修改输入文件中的参数值"""
+    def modify_input_file(self, new_value_1):
+        """修改输入文件中的参数值
+        
+        Args:
+            new_value_1: 第77行第2个数据的新值
+        """
         try:
             with open(self.original_file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
@@ -36,17 +42,52 @@ class KeffStudySimple:
             with open(self.original_file, 'r', encoding='gbk') as f:
                 lines = f.readlines()
         
-        # 修改第87行的第2个数据
-        target_line_index = self.target_line - 1
-        original_line = lines[target_line_index]
+        # 根据比例计算第2个数据的值
+        new_value_2 = new_value_1 / self.ratio  # 第2个数据 = 第1个数据 / (7.95/5)
         
-        # 解析原始行，格式: "   4    3.303747E-08                                                        D 17"
-        parts = original_line.split()
-        if len(parts) >= 2:
-            # 替换第2个数据，保持格式一致
-            new_line = f"   {parts[0]}    {new_value:.6E}                                                        D 17\n"
-            lines[target_line_index] = new_line
-            
+        success = True
+        
+        # 修改第77行的第2个数据
+        target_line_1_index = self.target_line_1 - 1
+        if target_line_1_index < len(lines):
+            original_line_1 = lines[target_line_1_index]
+            parts_1 = original_line_1.split()
+            if len(parts_1) >= 2:
+                # 替换第2个数据，保持格式一致
+                new_line_1 = f"   {parts_1[0]}    {new_value_1:.6E}                                                        D 17\n"
+                lines[target_line_1_index] = new_line_1
+                print(f"已修改第{self.target_line_1}行参数值为: {new_value_1:.6E}")
+            else:
+                print(f"错误：无法解析第{self.target_line_1}行")
+                success = False
+        else:
+            print(f"错误：第{self.target_line_1}行超出文件范围")
+            success = False
+        
+        # 修改第92行的第2个数据
+        target_line_2_index = self.target_line_2 - 1
+        if target_line_2_index < len(lines):
+            original_line_2 = lines[target_line_2_index]
+            parts_2 = original_line_2.split()
+            if len(parts_2) >= 2:
+                # 替换第2个数据，保持格式一致
+                new_line_2 = f"   {parts_2[0]}    {new_value_2:.6E}                                                        D 17\n"
+                lines[target_line_2_index] = new_line_2
+                print(f"已修改第{self.target_line_2}行参数值为: {new_value_2:.6E}")
+            else:
+                print(f"错误：无法解析第{self.target_line_2}行")
+                success = False
+        else:
+            print(f"错误：第{self.target_line_2}行超出文件范围")
+            success = False
+        
+        # 验证比例关系
+        if success:
+            actual_ratio = new_value_1 / new_value_2
+            expected_ratio = self.ratio
+            print(f"比例验证: {new_value_1:.6E} / {new_value_2:.6E} = {actual_ratio:.3f} (期望: {expected_ratio:.3f})")
+        
+        if success:
             # 写回文件
             try:
                 with open(self.original_file, 'w', encoding='utf-8') as f:
@@ -55,10 +96,10 @@ class KeffStudySimple:
                 with open(self.original_file, 'w', encoding='gbk') as f:
                     f.writelines(lines)
             
-            print(f"已修改参数值为: {new_value:.6E}")
+            print(f"已成功修改两个参数值，保持比例 7.95:5")
             return True
         else:
-            print(f"错误：无法解析第{self.target_line}行")
+            print("修改失败")
             return False
     
     def run_vsop_program(self, value):
@@ -168,6 +209,7 @@ class KeffStudySimple:
         
         print(f"开始keff研究，共{len(parameter_values)}个参数值")
         print(f"参数范围: {parameter_values[0]:.2E} 到 {parameter_values[-1]:.2E}")
+        print(f"比例关系: 第77行:第92行 = 7.95:5")
         
         # 备份原始文件
         self.backup_original_file()
@@ -175,7 +217,9 @@ class KeffStudySimple:
         start_time = time.time()
         
         for i, value in enumerate(parameter_values, 1):
-            print(f"\n=== 运行 {i}/{len(parameter_values)}: 参数值 = {value:.6E} ===")
+            print(f"\n=== 运行 {i}/{len(parameter_values)}: 第77行参数值 = {value:.6E} ===")
+            value_2 = value / self.ratio
+            print(f"    对应第92行参数值 = {value_2:.6E}")
             iteration_start = time.time()
             
             # 修改输入文件
@@ -191,7 +235,8 @@ class KeffStudySimple:
             keff_value = self.extract_keff_value(output_file)
             if keff_value is not None:
                 self.results.append({
-                    'parameter_value': value,
+                    'parameter_value_1': value,
+                    'parameter_value_2': value_2,
                     'keff': keff_value,
                     'output_file': output_file
                 })
@@ -218,8 +263,8 @@ class KeffStudySimple:
             print("没有结果需要保存")
             return
         
-        # 按参数值排序
-        self.results.sort(key=lambda x: x['parameter_value'])
+        # 按第1个参数值排序
+        self.results.sort(key=lambda x: x['parameter_value_1'])
         
         # 计算统计信息
         keff_values = [r['keff'] for r in self.results]
@@ -227,7 +272,7 @@ class KeffStudySimple:
         
         # 写入CSV文件
         with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-            fieldnames = ['序号', '参数值', 'keff值', 'keff变化', 'keff变化百分比(%)', '输出文件']
+            fieldnames = ['序号', '第77行参数值', '第92行参数值', 'keff值', 'keff变化', 'keff变化百分比(%)', '输出文件']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             
             writer.writeheader()
@@ -237,7 +282,8 @@ class KeffStudySimple:
                 
                 writer.writerow({
                     '序号': i,
-                    '参数值': f"{result['parameter_value']:.6E}",
+                    '第77行参数值': f"{result['parameter_value_1']:.6E}",
+                    '第92行参数值': f"{result['parameter_value_2']:.6E}",
                     'keff值': f"{result['keff']:.6f}",
                     'keff变化': f"{keff_change:.6f}",
                     'keff变化百分比(%)': f"{keff_change_percent:.4f}",
@@ -251,20 +297,25 @@ class KeffStudySimple:
         with open(summary_filename, 'w', encoding='utf-8') as f:
             f.write("KEFF研究结果统计摘要\n")
             f.write("=" * 40 + "\n\n")
-            f.write(f"参数值范围: {min(r['parameter_value'] for r in self.results):.2E} - {max(r['parameter_value'] for r in self.results):.2E}\n")
-            f.write(f"keff值范围: {min(keff_values):.6f} - {max(keff_values):.6f}\n")
-            f.write(f"keff变化范围: {max(keff_values) - min(keff_values):.6f}\n")
+            f.write("参数设置:\n")
+            f.write(f"  第77行参数值范围: {min(r['parameter_value_1'] for r in self.results):.2E} - {max(r['parameter_value_1'] for r in self.results):.2E}\n")
+            f.write(f"  第92行参数值范围: {min(r['parameter_value_2'] for r in self.results):.2E} - {max(r['parameter_value_2'] for r in self.results):.2E}\n")
+            f.write(f"  比例关系: 7.95:5 = {self.ratio:.3f}\n\n")
+            f.write("结果统计:\n")
+            f.write(f"  keff值范围: {min(keff_values):.6f} - {max(keff_values):.6f}\n")
+            f.write(f"  keff变化范围: {max(keff_values) - min(keff_values):.6f}\n")
             
             max_change_percent = max(abs((k - first_keff) / first_keff * 100) for k in keff_values)
-            f.write(f"最大变化百分比: {max_change_percent:.4f}%\n")
-            f.write(f"平均keff值: {sum(keff_values) / len(keff_values):.6f}\n")
-            f.write(f"总计算次数: {len(self.results)}\n")
+            f.write(f"  最大变化百分比: {max_change_percent:.4f}%\n")
+            f.write(f"  平均keff值: {sum(keff_values) / len(keff_values):.6f}\n")
+            f.write(f"  总计算次数: {len(self.results)}\n")
         
         print(f"统计摘要已保存到: {summary_filename}")
         
         # 打印简要统计
         print("\n=== 结果统计 ===")
-        print(f"参数值范围: {min(r['parameter_value'] for r in self.results):.2E} - {max(r['parameter_value'] for r in self.results):.2E}")
+        print(f"第77行参数值范围: {min(r['parameter_value_1'] for r in self.results):.2E} - {max(r['parameter_value_1'] for r in self.results):.2E}")
+        print(f"第92行参数值范围: {min(r['parameter_value_2'] for r in self.results):.2E} - {max(r['parameter_value_2'] for r in self.results):.2E}")
         print(f"keff值范围: {min(keff_values):.6f} - {max(keff_values):.6f}")
         print(f"keff变化范围: {max(keff_values) - min(keff_values):.6f}")
         max_change_percent = max(abs((k - first_keff) / first_keff * 100) for k in keff_values)
@@ -272,7 +323,12 @@ class KeffStudySimple:
 
 def main():
     """主函数"""
-    print("VSOP KEFF 自动化研究脚本 - 简化版本")
+    print("VSOP KEFF 自动化研究脚本 - 双参数版本")
+    print("=" * 50)
+    print("本脚本将同时修改两个参数:")
+    print("  - 第77行第2个数据")
+    print("  - 第92行第2个数据")
+    print("  - 保持比例关系 7.95:5")
     print("=" * 50)
     
     # 创建自动化对象
@@ -292,7 +348,7 @@ def main():
     # 设置参数
     while True:
         try:
-            print("\n请设置研究参数:")
+            print("\n请设置研究参数（第77行参数值）:")
             start_val = float(input("起始值 (默认 1e-8): ") or "1e-8")
             end_val = float(input("结束值 (默认 9e-7): ") or "9e-7")
             num_points = int(input("计算点数 (默认 9): ") or "9")
@@ -315,9 +371,13 @@ def main():
         num_points=num_points
     )
     
-    print(f"\n将要使用的{len(parameter_values)}个参数值:")
+    print(f"\n将要使用的{len(parameter_values)}个参数值组合:")
+    print("序号 | 第77行参数值    | 第92行参数值    | 比例验证")
+    print("-" * 55)
     for i, val in enumerate(parameter_values, 1):
-        print(f"  {i:2d}: {val:.6E}")
+        val_2 = val / automation.ratio
+        ratio_check = val / val_2
+        print(f"{i:2d}   | {val:.6E} | {val_2:.6E} | {ratio_check:.3f}")
     
     print(f"\n预计总运行时间: 约{len(parameter_values) * 2}分钟")
     
