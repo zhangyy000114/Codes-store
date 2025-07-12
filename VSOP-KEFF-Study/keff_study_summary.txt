@@ -1,14 +1,14 @@
-KEFF研究结果统计摘要
+KEFF Study Results Summary
 ========================================
 
-参数设置:
-  第87行参数值范围: 5.00E-08 - 8.00E-07
-  第92行参数值范围: 3.14E-08 - 5.03E-07
-  比例关系: 7.95:5 = 1.590
+Parameter Settings:
+  Line 87 Parameter Range: 5.00E-08 - 8.00E-07
+  Line 92 Parameter Range: 3.14E-08 - 5.03E-07
+  Ratio Relationship: 7.95:5 = 1.590
 
-结果统计:
-  keff值范围: 1.116410 - 1.306620
-  keff变化范围: 0.190210
-  最大变化百分比: 14.5574%
-  平均keff值: 1.236978
-  总计算次数: 5
+Results Statistics:
+  KEFF Value Range: 1.116410 - 1.306620
+  KEFF Change Range: 0.190210
+  Max Change Percentage: 14.5574%
+  Average KEFF Value: 1.243729
+  Total Calculations: 20
