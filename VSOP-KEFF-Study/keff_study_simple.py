@@ -135,7 +135,9 @@ class KeffStudySimple:
         self.program_path = "VSOP99_11-MS.exe"
         self.target_line_1 = 87  # 第1个目标行号
         self.target_line_2 = 92  # 第2个目标行号
+        self.target_line_3 = 99  # 第3个目标行号（固定值）
         self.ratio = 7.95 / 5.0  # 第1个数据与第2个数据的比例 (7.95:5)
+        self.fixed_value_line99 = 201  # 第99行的固定值
         self.baseline_keff = 1.22370  # 基准KEFF值
         self.results = []
         
@@ -418,6 +420,17 @@ Parameter Range:
                 success = False
         else:
             print(f"错误：第{self.target_line_2}行超出文件范围")
+            success = False
+        
+        # 修改第99行为固定格式（保持最后的数字"2"不变）
+        target_line_3_index = self.target_line_3 - 1
+        if target_line_3_index < len(lines):
+            # 设置第99行为完整的固定格式
+            fixed_line_99 = "   201     0     0     0                0.                       0     2    V  7\n"
+            lines[target_line_3_index] = fixed_line_99
+            print(f"已设置第{self.target_line_3}行为固定格式: 201 ... 2")
+        else:
+            print(f"错误：第{self.target_line_3}行超出文件范围")
             success = False
         
         # 验证比例关系
@@ -868,12 +881,12 @@ Parameter Range:
 
 def main():
     """主函数"""
-    print("VSOP KEFF 自动化研究脚本 - 双参数可视化版本")
+    print("VSOP KEFF 自动化研究脚本 - 三参数可视化版本")
     print("=" * 50)
-    print("本脚本将同时修改两个参数:")
-    print("  - 第87行第2个数据")
-    print("  - 第92行第2个数据")
-    print("  - 保持比例关系 7.95:5")
+    print("本脚本将同时修改三个参数:")
+    print("  - 第87行第2个数据（变化）")
+    print("  - 第92行第2个数据（按比例变化，保持7.95:5）")
+    print("  - 第99行固定格式（201 ... 2，确保最后位数字'2'不变）")
     print(f"  - 与基准值 {1.22370:.5f} 进行比较")
     
     if MATPLOTLIB_AVAILABLE:
