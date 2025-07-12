@@ -19,6 +19,109 @@ try:
     import matplotlib.patches as patches
     from matplotlib.animation import FuncAnimation
     import numpy as np
+    import matplotlib.font_manager as fm
+    
+    def setup_fonts():
+        """设置matplotlib字体"""
+        # 清理matplotlib字体缓存
+        try:
+            fm.fontManager.__init__()
+        except:
+            pass
+        
+        # 获取系统可用字体列表
+        font_list = [f.name for f in fm.fontManager.ttflist]
+        
+        # 中文字体优先级列表
+        chinese_fonts = ['SimSun', 'Song', 'Microsoft YaHei', 'SimHei', 'KaiTi', 'FangSong']
+        # 英文字体优先级列表  
+        english_fonts = ['Times New Roman', 'Arial', 'Helvetica', 'DejaVu Sans']
+        
+        # 查找可用的中文字体
+        available_chinese = None
+        for font in chinese_fonts:
+            if font in font_list:
+                available_chinese = font
+                break
+        
+        # 查找可用的英文字体
+        available_english = None
+        for font in english_fonts:
+            if font in font_list:
+                available_english = font
+                break
+        
+        # 强制设置字体配置
+        if available_chinese and available_english:
+            # 优先使用Times New Roman作为默认字体
+            primary_font = available_english if available_english == 'Times New Roman' else available_chinese
+            font_family = [primary_font, available_chinese, available_english, 'DejaVu Sans']
+            print(f"字体配置：中文-{available_chinese}，英文-{available_english}")
+        elif available_chinese:
+            font_family = [available_chinese, 'DejaVu Sans']
+            print(f"字体配置：中文-{available_chinese}，英文-系统默认")
+        elif available_english:
+            font_family = [available_english, 'DejaVu Sans']
+            print(f"字体配置：中文-系统默认，英文-{available_english}")
+        else:
+            font_family = ['DejaVu Sans']
+            print("字体配置：使用系统默认字体")
+        
+        # 强制设置所有字体族
+        plt.rcParams.update({
+            'font.sans-serif': font_family,
+            'font.serif': font_family,
+            'font.monospace': font_family,
+            'font.cursive': font_family,
+            'font.fantasy': font_family,
+            'font.family': 'sans-serif',
+            'axes.unicode_minus': False,
+            'font.size': 10,
+            'axes.labelsize': 10,
+            'axes.titlesize': 12,
+            'xtick.labelsize': 9,
+            'ytick.labelsize': 9,
+            'legend.fontsize': 9,
+            'figure.titlesize': 14
+        })
+        
+        # 禁用字体缓存刷新警告
+        import warnings
+        warnings.filterwarnings('ignore', category=UserWarning, module='matplotlib')
+        warnings.filterwarnings('ignore', message='.*missing from font.*')
+        warnings.filterwarnings('ignore', message='.*Glyph.*missing.*')
+        
+        return available_chinese, available_english
+    
+    # 执行字体设置
+    chinese_font, english_font = setup_fonts()
+    
+    # 创建字体配置函数
+    def get_font_props(size=10, is_title=False):
+        """获取字体属性"""
+        if english_font == 'Times New Roman':
+            family = 'serif'
+            font_name = 'Times New Roman'
+        else:
+            family = 'sans-serif'
+            font_name = english_font if english_font else 'DejaVu Sans'
+        
+        return {
+            'family': family,
+            'size': size + 2 if is_title else size,
+            'weight': 'bold' if is_title else 'normal'
+        }
+    
+    # 创建统一的字体设置函数
+    def apply_font_to_text(text_obj, size=10, is_title=False):
+        """为文本对象应用字体"""
+        font_name = 'Times New Roman' if english_font == 'Times New Roman' else english_font
+        if font_name:
+            text_obj.set_fontname(font_name)
+        text_obj.set_fontsize(size + 2 if is_title else size)
+        if is_title:
+            text_obj.set_fontweight('bold')
+    
     MATPLOTLIB_AVAILABLE = True
     print("检测到matplotlib，将启用可视化功能")
 except ImportError:
@@ -49,35 +152,45 @@ class KeffStudySimple:
             
         # 创建图形窗口
         self.fig = plt.figure(figsize=(15, 10))
-        self.fig.suptitle('VSOP KEFF 研究实时监控', fontsize=16, fontweight='bold')
+        self.fig.suptitle('VSOP KEFF 研究实时监控', fontsize=16, fontweight='bold', 
+                         fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
         
         # 创建子图
         gs = self.fig.add_gridspec(3, 2, hspace=0.3, wspace=0.3)
         
         # 进度条
         self.ax_progress = self.fig.add_subplot(gs[0, :])
-        self.ax_progress.set_title('运行进度', fontsize=14)
+        self.ax_progress.set_title('运行进度', fontsize=14, 
+                                  fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
         self.ax_progress.set_xlim(0, total_runs)
         self.ax_progress.set_ylim(-0.5, 0.5)
-        self.ax_progress.set_xlabel('计算次数')
+        self.ax_progress.set_xlabel('计算次数', 
+                                   fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
         
         # KEFF值变化图
         self.ax_keff = self.fig.add_subplot(gs[1, 0])
-        self.ax_keff.set_title('KEFF值变化', fontsize=14)
-        self.ax_keff.set_xlabel('参数值 (第87行)')
-        self.ax_keff.set_ylabel('KEFF值')
+        self.ax_keff.set_title('KEFF值变化', fontsize=14, 
+                              fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
+        self.ax_keff.set_xlabel('参数值 (第87行)', 
+                               fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
+        self.ax_keff.set_ylabel('KEFF值', 
+                               fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
         self.ax_keff.grid(True, alpha=0.3)
         
         # 参数关系图
         self.ax_params = self.fig.add_subplot(gs[1, 1])
-        self.ax_params.set_title('双参数关系 (7.95:5)', fontsize=14)
-        self.ax_params.set_xlabel('第87行参数值')
-        self.ax_params.set_ylabel('第92行参数值')
+        self.ax_params.set_title('双参数关系 (7.95:5)', fontsize=14, 
+                                fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
+        self.ax_params.set_xlabel('第87行参数值', 
+                                 fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
+        self.ax_params.set_ylabel('第92行参数值', 
+                                 fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
         self.ax_params.grid(True, alpha=0.3)
         
         # 统计信息区域
         self.ax_stats = self.fig.add_subplot(gs[2, :])
-        self.ax_stats.set_title('实时统计信息', fontsize=14)
+        self.ax_stats.set_title('实时统计信息', fontsize=14, 
+                               fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
         self.ax_stats.axis('off')
         
         plt.ion()  # 开启交互模式
@@ -481,7 +594,9 @@ KEFF值统计:
             
         # 创建最终分析图表
         fig_final = plt.figure(figsize=(16, 12))
-        fig_final.suptitle('VSOP KEFF 研究结果分析', fontsize=18, fontweight='bold')
+        font_name = 'Times New Roman' if english_font == 'Times New Roman' else english_font
+        fig_final.suptitle('VSOP KEFF 研究结果分析', fontsize=18, fontweight='bold', 
+                          fontname=font_name if font_name else 'DejaVu Sans')
         
         # 准备数据
         param1_values = [r['parameter_value_1'] for r in self.results]
@@ -495,34 +610,36 @@ KEFF值统计:
         # 子图1: KEFF vs 第87行参数值
         ax1 = fig_final.add_subplot(2, 3, 1)
         ax1.plot(param1_sorted, keff_sorted, 'bo-', linewidth=2, markersize=8)
-        ax1.set_xlabel('第87行参数值')
-        ax1.set_ylabel('KEFF值')
-        ax1.set_title('KEFF vs 第87行参数值')
+        ax1.set_xlabel('Line 87 Parameter Value', fontname=font_name if font_name else 'DejaVu Sans')
+        ax1.set_ylabel('KEFF Value', fontname=font_name if font_name else 'DejaVu Sans')
+        ax1.set_title('KEFF vs Line 87 Parameter', fontname=font_name if font_name else 'DejaVu Sans')
         ax1.set_xscale('log')
         ax1.grid(True, alpha=0.3)
         
         # 子图2: KEFF vs 第92行参数值
         ax2 = fig_final.add_subplot(2, 3, 2)
         ax2.plot(param2_sorted, keff_sorted, 'ro-', linewidth=2, markersize=8)
-        ax2.set_xlabel('第92行参数值')
-        ax2.set_ylabel('KEFF值')
-        ax2.set_title('KEFF vs 第92行参数值')
+        ax2.set_xlabel('Line 92 Parameter Value', fontname=font_name if font_name else 'DejaVu Sans')
+        ax2.set_ylabel('KEFF Value', fontname=font_name if font_name else 'DejaVu Sans')
+        ax2.set_title('KEFF vs Line 92 Parameter', fontname=font_name if font_name else 'DejaVu Sans')
         ax2.set_xscale('log')
         ax2.grid(True, alpha=0.3)
         
         # 子图3: 参数关系验证
         ax3 = fig_final.add_subplot(2, 3, 3)
-        ax3.plot(param1_sorted, param2_sorted, 'go-', linewidth=2, markersize=8, label='实际值')
+        ax3.plot(param1_sorted, param2_sorted, 'go-', linewidth=2, markersize=8, label='Actual Values')
         # 理论直线
         x_theory = np.array(param1_sorted)
         y_theory = x_theory / self.ratio
-        ax3.plot(x_theory, y_theory, 'b--', linewidth=2, alpha=0.7, label='理论比例线')
-        ax3.set_xlabel('第87行参数值')
-        ax3.set_ylabel('第92行参数值')
-        ax3.set_title('参数关系验证 (7.95:5)')
+        ax3.plot(x_theory, y_theory, 'b--', linewidth=2, alpha=0.7, label='Theoretical Ratio Line')
+        ax3.set_xlabel('Line 87 Parameter Value', fontname=font_name if font_name else 'DejaVu Sans')
+        ax3.set_ylabel('Line 92 Parameter Value', fontname=font_name if font_name else 'DejaVu Sans')
+        ax3.set_title('Parameter Relationship (7.95:5)', fontname=font_name if font_name else 'DejaVu Sans')
         ax3.set_xscale('log')
         ax3.set_yscale('log')
-        ax3.legend()
+        legend = ax3.legend()
+        for text in legend.get_texts():
+            text.set_fontname(font_name if font_name else 'DejaVu Sans')
         ax3.grid(True, alpha=0.3)
         
         # 子图4: KEFF变化率
@@ -536,9 +653,9 @@ KEFF值统计:
                 param1_centers.append((param1_sorted[i] + param1_sorted[i+1]) / 2)
             
             ax4.plot(param1_centers, keff_changes, 'mo-', linewidth=2, markersize=8)
-            ax4.set_xlabel('第87行参数值')
-            ax4.set_ylabel('KEFF变化率 (%)')
-            ax4.set_title('KEFF变化率')
+            ax4.set_xlabel('Line 87 Parameter Value', fontname=font_name if font_name else 'DejaVu Sans')
+            ax4.set_ylabel('KEFF Change Rate (%)', fontname=font_name if font_name else 'DejaVu Sans')
+            ax4.set_title('KEFF Change Rate', fontname=font_name if font_name else 'DejaVu Sans')
             ax4.set_xscale('log')
             ax4.grid(True, alpha=0.3)
             ax4.axhline(y=0, color='k', linestyle='-', alpha=0.3)
@@ -546,9 +663,9 @@ KEFF值统计:
         # 子图5: KEFF值分布直方图
         ax5 = fig_final.add_subplot(2, 3, 5)
         ax5.hist(keff_values, bins=min(10, len(keff_values)), alpha=0.7, edgecolor='black')
-        ax5.set_xlabel('KEFF值')
-        ax5.set_ylabel('频次')
-        ax5.set_title('KEFF值分布')
+        ax5.set_xlabel('KEFF Value', fontname=font_name if font_name else 'DejaVu Sans')
+        ax5.set_ylabel('Frequency', fontname=font_name if font_name else 'DejaVu Sans')
+        ax5.set_title('KEFF Value Distribution', fontname=font_name if font_name else 'DejaVu Sans')
         ax5.grid(True, alpha=0.3)
         
         # 子图6: 统计信息表格
@@ -565,27 +682,28 @@ KEFF值统计:
         max_change_percent = max(abs((k - first_keff) / first_keff * 100) for k in keff_values)
         
         stats_text = f"""
-统计信息:
+Statistics:
 ━━━━━━━━━━━━━━━━
-• 计算点数: {len(self.results)}
-• KEFF 最小值: {min_keff:.6f}
-• KEFF 最大值: {max_keff:.6f}
-• KEFF 平均值: {avg_keff:.6f}
-• KEFF 标准差: {std_keff:.6f}
-• KEFF 变化范围: {max_keff - min_keff:.6f}
-• 最大变化率: {max_change_percent:.4f}%
+• Calculation Points: {len(self.results)}
+• KEFF Minimum: {min_keff:.6f}
+• KEFF Maximum: {max_keff:.6f}
+• KEFF Average: {avg_keff:.6f}
+• KEFF Std Dev: {std_keff:.6f}
+• KEFF Range: {max_keff - min_keff:.6f}
+• Max Change Rate: {max_change_percent:.4f}%
 
-参数范围:
+Parameter Range:
 ━━━━━━━━━━━━━━━━
-• 第87行: {min(param1_values):.2E} 
-  到 {max(param1_values):.2E}
-• 第92行: {min(param2_values):.2E} 
-  到 {max(param2_values):.2E}
-• 比例关系: 7.95:5 = {self.ratio:.3f}
+• Line 87: {min(param1_values):.2E} 
+  to {max(param1_values):.2E}
+• Line 92: {min(param2_values):.2E} 
+  to {max(param2_values):.2E}
+• Ratio: 7.95:5 = {self.ratio:.3f}
         """
         
         ax6.text(0.1, 0.9, stats_text, transform=ax6.transAxes, fontsize=11, 
-                verticalalignment='top', fontfamily='monospace')
+                verticalalignment='top', fontfamily='monospace', 
+                fontname=font_name if font_name else 'DejaVu Sans')
         
         plt.tight_layout()
         
