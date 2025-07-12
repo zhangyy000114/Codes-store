@@ -136,6 +136,7 @@ class KeffStudySimple:
         self.target_line_1 = 87  # 第1个目标行号
         self.target_line_2 = 92  # 第2个目标行号
         self.ratio = 7.95 / 5.0  # 第1个数据与第2个数据的比例 (7.95:5)
+        self.baseline_keff = 1.22370  # 基准KEFF值
         self.results = []
         
         # 可视化相关
@@ -237,14 +238,21 @@ class KeffStudySimple:
         self.ax_keff.grid(True, alpha=0.3)
         
         # 绘制数据点和连线
-        self.ax_keff.plot(param_values, keff_values, 'bo-', linewidth=2, markersize=6)
+        self.ax_keff.plot(param_values, keff_values, 'bo-', linewidth=2, markersize=6, label='KEFF Values')
         self.ax_keff.set_xscale('log')
         
-        # 添加数值标签
+        # 添加基准线
+        if param_values:
+            self.ax_keff.axhline(y=self.baseline_keff, color='red', linestyle='--', linewidth=2, 
+                                alpha=0.8, label=f'Baseline: {self.baseline_keff:.5f}')
+        
+        # 添加数值标签和与基准值的偏差
         for i, (x, y) in enumerate(zip(param_values, keff_values)):
-            self.ax_keff.annotate(f'{y:.4f}', (x, y), textcoords="offset points", 
+            deviation = y - self.baseline_keff
+            self.ax_keff.annotate(f'{y:.4f}\n({deviation:+.4f})', (x, y), textcoords="offset points", 
                                 xytext=(0,10), ha='center', fontsize=8)
         
+        self.ax_keff.legend(fontsize=9)
         plt.draw()
         plt.pause(0.001)
         
@@ -298,6 +306,13 @@ class KeffStudySimple:
         avg_keff = sum(keff_values) / len(keff_values)
         keff_range = max_keff - min_keff
         
+        # 基准值比较统计
+        deviations = [k - self.baseline_keff for k in keff_values]
+        min_deviation = min(deviations)
+        max_deviation = max(deviations)
+        avg_deviation = sum(deviations) / len(deviations)
+        max_abs_deviation = max(abs(d) for d in deviations)
+        
         if len(keff_values) > 1:
             first_keff = keff_values[0]
             max_change_percent = max(abs((k - first_keff) / first_keff * 100) for k in keff_values)
@@ -314,6 +329,12 @@ KEFF Statistics:
 • Average: {avg_keff:.6f}
 • Range: {keff_range:.6f}
 • Max Change: {max_change_percent:.4f}%
+
+Baseline Comparison ({self.baseline_keff:.5f}):
+• Min Deviation: {min_deviation:+.6f}
+• Max Deviation: {max_deviation:+.6f}
+• Avg Deviation: {avg_deviation:+.6f}
+• Max Abs Dev: {max_abs_deviation:.6f}
 
 Parameter Range:
 • Line 87: {min(param1_values):.2E} - {max(param1_values):.2E}
@@ -609,21 +630,31 @@ Parameter Range:
         
         # 子图1: KEFF vs 第87行参数值
         ax1 = fig_final.add_subplot(2, 3, 1)
-        ax1.plot(param1_sorted, keff_sorted, 'bo-', linewidth=2, markersize=8)
+        ax1.plot(param1_sorted, keff_sorted, 'bo-', linewidth=2, markersize=8, label='KEFF Values')
+        ax1.axhline(y=self.baseline_keff, color='red', linestyle='--', linewidth=2, alpha=0.8, 
+                   label=f'Baseline: {self.baseline_keff:.5f}')
         ax1.set_xlabel('Line 87 Parameter Value', fontname=font_name if font_name else 'DejaVu Sans')
         ax1.set_ylabel('KEFF Value', fontname=font_name if font_name else 'DejaVu Sans')
         ax1.set_title('KEFF vs Line 87 Parameter', fontname=font_name if font_name else 'DejaVu Sans')
         ax1.set_xscale('log')
         ax1.grid(True, alpha=0.3)
+        legend1 = ax1.legend(fontsize=9)
+        for text in legend1.get_texts():
+            text.set_fontname(font_name if font_name else 'DejaVu Sans')
         
         # 子图2: KEFF vs 第92行参数值
         ax2 = fig_final.add_subplot(2, 3, 2)
-        ax2.plot(param2_sorted, keff_sorted, 'ro-', linewidth=2, markersize=8)
+        ax2.plot(param2_sorted, keff_sorted, 'ro-', linewidth=2, markersize=8, label='KEFF Values')
+        ax2.axhline(y=self.baseline_keff, color='red', linestyle='--', linewidth=2, alpha=0.8, 
+                   label=f'Baseline: {self.baseline_keff:.5f}')
         ax2.set_xlabel('Line 92 Parameter Value', fontname=font_name if font_name else 'DejaVu Sans')
         ax2.set_ylabel('KEFF Value', fontname=font_name if font_name else 'DejaVu Sans')
         ax2.set_title('KEFF vs Line 92 Parameter', fontname=font_name if font_name else 'DejaVu Sans')
         ax2.set_xscale('log')
         ax2.grid(True, alpha=0.3)
+        legend2 = ax2.legend(fontsize=9)
+        for text in legend2.get_texts():
+            text.set_fontname(font_name if font_name else 'DejaVu Sans')
         
         # 子图3: 参数关系验证
         ax3 = fig_final.add_subplot(2, 3, 3)
@@ -642,23 +673,20 @@ Parameter Range:
             text.set_fontname(font_name if font_name else 'DejaVu Sans')
         ax3.grid(True, alpha=0.3)
         
-        # 子图4: KEFF变化率
+        # 子图4: 基准值偏差
         ax4 = fig_final.add_subplot(2, 3, 4)
-        if len(keff_sorted) > 1:
-            keff_changes = []
-            param1_centers = []
-            for i in range(len(keff_sorted) - 1):
-                change = (keff_sorted[i+1] - keff_sorted[i]) / keff_sorted[i] * 100
-                keff_changes.append(change)
-                param1_centers.append((param1_sorted[i] + param1_sorted[i+1]) / 2)
-            
-            ax4.plot(param1_centers, keff_changes, 'mo-', linewidth=2, markersize=8)
-            ax4.set_xlabel('Line 87 Parameter Value', fontname=font_name if font_name else 'DejaVu Sans')
-            ax4.set_ylabel('KEFF Change Rate (%)', fontname=font_name if font_name else 'DejaVu Sans')
-            ax4.set_title('KEFF Change Rate', fontname=font_name if font_name else 'DejaVu Sans')
-            ax4.set_xscale('log')
-            ax4.grid(True, alpha=0.3)
-            ax4.axhline(y=0, color='k', linestyle='-', alpha=0.3)
+        deviations = [k - self.baseline_keff for k in keff_sorted]
+        ax4.plot(param1_sorted, deviations, 'mo-', linewidth=2, markersize=8)
+        ax4.set_xlabel('Line 87 Parameter Value', fontname=font_name if font_name else 'DejaVu Sans')
+        ax4.set_ylabel('Deviation from Baseline', fontname=font_name if font_name else 'DejaVu Sans')
+        ax4.set_title('KEFF Deviation from Baseline', fontname=font_name if font_name else 'DejaVu Sans')
+        ax4.set_xscale('log')
+        ax4.grid(True, alpha=0.3)
+        ax4.axhline(y=0, color='red', linestyle='--', linewidth=2, alpha=0.8, 
+                   label=f'Baseline: {self.baseline_keff:.5f}')
+        legend4 = ax4.legend(fontsize=9)
+        for text in legend4.get_texts():
+            text.set_fontname(font_name if font_name else 'DejaVu Sans')
         
         # 子图5: KEFF值分布直方图
         ax5 = fig_final.add_subplot(2, 3, 5)
@@ -681,6 +709,13 @@ Parameter Range:
         first_keff = keff_sorted[0]
         max_change_percent = max(abs((k - first_keff) / first_keff * 100) for k in keff_values)
         
+        # 基准值比较统计
+        deviations = [k - self.baseline_keff for k in keff_values]
+        min_deviation = min(deviations)
+        max_deviation = max(deviations)
+        avg_deviation = sum(deviations) / len(deviations)
+        max_abs_deviation = max(abs(d) for d in deviations)
+        
         stats_text = f"""
 Statistics:
 ━━━━━━━━━━━━━━━━
@@ -691,6 +726,14 @@ Statistics:
 • KEFF Std Dev: {std_keff:.6f}
 • KEFF Range: {max_keff - min_keff:.6f}
 • Max Change Rate: {max_change_percent:.4f}%
+
+Baseline Comparison:
+━━━━━━━━━━━━━━━━
+• Baseline: {self.baseline_keff:.5f}
+• Min Deviation: {min_deviation:+.6f}
+• Max Deviation: {max_deviation:+.6f}
+• Avg Deviation: {avg_deviation:+.6f}
+• Max Abs Dev: {max_abs_deviation:.6f}
 
 Parameter Range:
 ━━━━━━━━━━━━━━━━
@@ -741,13 +784,15 @@ Parameter Range:
         
         # 写入CSV文件
         with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-            fieldnames = ['Index', 'Line87_Parameter', 'Line92_Parameter', 'KEFF_Value', 'KEFF_Change', 'KEFF_Change_Percent', 'Output_File']
+            fieldnames = ['Index', 'Line87_Parameter', 'Line92_Parameter', 'KEFF_Value', 'KEFF_Change', 'KEFF_Change_Percent', 'Baseline_Deviation', 'Baseline_Deviation_Percent', 'Output_File']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             
             writer.writeheader()
             for i, result in enumerate(self.results, 1):
                 keff_change = result['keff'] - first_keff
                 keff_change_percent = (keff_change / first_keff) * 100
+                baseline_deviation = result['keff'] - self.baseline_keff
+                baseline_deviation_percent = (baseline_deviation / self.baseline_keff) * 100
                 
                 writer.writerow({
                     'Index': i,
@@ -756,6 +801,8 @@ Parameter Range:
                     'KEFF_Value': f"{result['keff']:.6f}",
                     'KEFF_Change': f"{keff_change:.6f}",
                     'KEFF_Change_Percent': f"{keff_change_percent:.4f}",
+                    'Baseline_Deviation': f"{baseline_deviation:+.6f}",
+                    'Baseline_Deviation_Percent': f"{baseline_deviation_percent:+.4f}",
                     'Output_File': result['output_file']
                 })
         
@@ -777,7 +824,22 @@ Parameter Range:
             max_change_percent = max(abs((k - first_keff) / first_keff * 100) for k in keff_values)
             f.write(f"  Max Change Percentage: {max_change_percent:.4f}%\n")
             f.write(f"  Average KEFF Value: {sum(keff_values) / len(keff_values):.6f}\n")
-            f.write(f"  Total Calculations: {len(self.results)}\n")
+            f.write(f"  Total Calculations: {len(self.results)}\n\n")
+            
+            # 基准值比较统计
+            deviations = [k - self.baseline_keff for k in keff_values]
+            min_deviation = min(deviations)
+            max_deviation = max(deviations)
+            avg_deviation = sum(deviations) / len(deviations)
+            max_abs_deviation = max(abs(d) for d in deviations)
+            
+            f.write("Baseline Comparison Statistics:\n")
+            f.write(f"  Baseline KEFF Value: {self.baseline_keff:.5f}\n")
+            f.write(f"  Min Deviation: {min_deviation:+.6f}\n")
+            f.write(f"  Max Deviation: {max_deviation:+.6f}\n")
+            f.write(f"  Average Deviation: {avg_deviation:+.6f}\n")
+            f.write(f"  Max Absolute Deviation: {max_abs_deviation:.6f}\n")
+            f.write(f"  Deviation Range: {max_deviation - min_deviation:.6f}\n")
         
         print(f"统计摘要已保存到: {summary_filename}")
         
@@ -789,6 +851,20 @@ Parameter Range:
         print(f"KEFF Change Range: {max(keff_values) - min(keff_values):.6f}")
         max_change_percent = max(abs((k - first_keff) / first_keff * 100) for k in keff_values)
         print(f"Max Change Percentage: {max_change_percent:.4f}%")
+        
+        # 基准值比较统计
+        deviations = [k - self.baseline_keff for k in keff_values]
+        min_deviation = min(deviations)
+        max_deviation = max(deviations)
+        avg_deviation = sum(deviations) / len(deviations)
+        max_abs_deviation = max(abs(d) for d in deviations)
+        
+        print(f"\n=== Baseline Comparison (Baseline: {self.baseline_keff:.5f}) ===")
+        print(f"Min Deviation: {min_deviation:+.6f}")
+        print(f"Max Deviation: {max_deviation:+.6f}")
+        print(f"Average Deviation: {avg_deviation:+.6f}")
+        print(f"Max Absolute Deviation: {max_abs_deviation:.6f}")
+        print(f"Deviation Range: {max_deviation - min_deviation:.6f}")
 
 def main():
     """主函数"""
@@ -798,6 +874,7 @@ def main():
     print("  - 第87行第2个数据")
     print("  - 第92行第2个数据")
     print("  - 保持比例关系 7.95:5")
+    print(f"  - 与基准值 {1.22370:.5f} 进行比较")
     
     if MATPLOTLIB_AVAILABLE:
         print("  - 启用实时可视化功能")
