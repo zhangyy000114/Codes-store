@@ -152,7 +152,7 @@ class KeffStudySimple:
             
         # 创建图形窗口
         self.fig = plt.figure(figsize=(15, 10))
-        self.fig.suptitle('VSOP KEFF 研究实时监控', fontsize=16, fontweight='bold', 
+        self.fig.suptitle('VSOP KEFF Study Real-time Monitoring', fontsize=16, fontweight='bold', 
                          fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
         
         # 创建子图
@@ -160,36 +160,36 @@ class KeffStudySimple:
         
         # 进度条
         self.ax_progress = self.fig.add_subplot(gs[0, :])
-        self.ax_progress.set_title('运行进度', fontsize=14, 
+        self.ax_progress.set_title('Calculation Progress', fontsize=14, 
                                   fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
         self.ax_progress.set_xlim(0, total_runs)
         self.ax_progress.set_ylim(-0.5, 0.5)
-        self.ax_progress.set_xlabel('计算次数', 
+        self.ax_progress.set_xlabel('Calculation Count', 
                                    fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
         
         # KEFF值变化图
         self.ax_keff = self.fig.add_subplot(gs[1, 0])
-        self.ax_keff.set_title('KEFF值变化', fontsize=14, 
+        self.ax_keff.set_title('KEFF Value Changes', fontsize=14, 
                               fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
-        self.ax_keff.set_xlabel('参数值 (第87行)', 
+        self.ax_keff.set_xlabel('Parameter Value (Line 87)', 
                                fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
-        self.ax_keff.set_ylabel('KEFF值', 
+        self.ax_keff.set_ylabel('KEFF Value', 
                                fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
         self.ax_keff.grid(True, alpha=0.3)
         
         # 参数关系图
         self.ax_params = self.fig.add_subplot(gs[1, 1])
-        self.ax_params.set_title('双参数关系 (7.95:5)', fontsize=14, 
+        self.ax_params.set_title('Dual Parameter Relationship (7.95:5)', fontsize=14, 
                                 fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
-        self.ax_params.set_xlabel('第87行参数值', 
+        self.ax_params.set_xlabel('Line 87 Parameter Value', 
                                  fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
-        self.ax_params.set_ylabel('第92行参数值', 
+        self.ax_params.set_ylabel('Line 92 Parameter Value', 
                                  fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
         self.ax_params.grid(True, alpha=0.3)
         
         # 统计信息区域
         self.ax_stats = self.fig.add_subplot(gs[2, :])
-        self.ax_stats.set_title('实时统计信息', fontsize=14, 
+        self.ax_stats.set_title('Real-time Statistics', fontsize=14, 
                                fontname='Times New Roman' if english_font == 'Times New Roman' else english_font)
         self.ax_stats.axis('off')
         
@@ -202,10 +202,10 @@ class KeffStudySimple:
             return
             
         self.ax_progress.clear()
-        self.ax_progress.set_title(f'运行进度 - {status_text}', fontsize=14)
+        self.ax_progress.set_title(f'Calculation Progress - {status_text}', fontsize=14)
         self.ax_progress.set_xlim(0, total)
         self.ax_progress.set_ylim(-0.5, 0.5)
-        self.ax_progress.set_xlabel('计算次数')
+        self.ax_progress.set_xlabel('Calculation Count')
         
         # 绘制进度条
         progress_width = current / total * total
@@ -231,9 +231,9 @@ class KeffStudySimple:
         keff_values = [r['keff'] for r in self.results]
         
         self.ax_keff.clear()
-        self.ax_keff.set_title('KEFF值变化', fontsize=14)
-        self.ax_keff.set_xlabel('参数值 (第87行)')
-        self.ax_keff.set_ylabel('KEFF值')
+        self.ax_keff.set_title('KEFF Value Changes', fontsize=14)
+        self.ax_keff.set_xlabel('Parameter Value (Line 87)')
+        self.ax_keff.set_ylabel('KEFF Value')
         self.ax_keff.grid(True, alpha=0.3)
         
         # 绘制数据点和连线
@@ -258,19 +258,19 @@ class KeffStudySimple:
         param2_values = [r['parameter_value_2'] for r in self.results]
         
         self.ax_params.clear()
-        self.ax_params.set_title('双参数关系 (7.95:5)', fontsize=14)
-        self.ax_params.set_xlabel('第87行参数值')
-        self.ax_params.set_ylabel('第92行参数值')
+        self.ax_params.set_title('Dual Parameter Relationship (7.95:5)', fontsize=14)
+        self.ax_params.set_xlabel('Line 87 Parameter Value')
+        self.ax_params.set_ylabel('Line 92 Parameter Value')
         self.ax_params.grid(True, alpha=0.3)
         
         # 绘制数据点和理论直线
-        self.ax_params.plot(param1_values, param2_values, 'ro-', linewidth=2, markersize=6, label='实际值')
+        self.ax_params.plot(param1_values, param2_values, 'ro-', linewidth=2, markersize=6, label='Actual Values')
         
         # 绘制理论比例线
         if param1_values:
             x_theory = [min(param1_values), max(param1_values)]
             y_theory = [x / self.ratio for x in x_theory]
-            self.ax_params.plot(x_theory, y_theory, 'b--', linewidth=2, alpha=0.7, label='理论比例线')
+            self.ax_params.plot(x_theory, y_theory, 'b--', linewidth=2, alpha=0.7, label='Theoretical Ratio Line')
         
         self.ax_params.set_xscale('log')
         self.ax_params.set_yscale('log')
@@ -285,7 +285,7 @@ class KeffStudySimple:
             return
             
         self.ax_stats.clear()
-        self.ax_stats.set_title('实时统计信息', fontsize=14)
+        self.ax_stats.set_title('Real-time Statistics', fontsize=14)
         self.ax_stats.axis('off')
         
         # 计算统计信息
@@ -306,19 +306,19 @@ class KeffStudySimple:
         
         # 创建统计信息文本
         stats_text = f"""
-当前结果数: {len(self.results)}
+Current Results: {len(self.results)}
         
-KEFF值统计:
-• 最小值: {min_keff:.6f}
-• 最大值: {max_keff:.6f}
-• 平均值: {avg_keff:.6f}
-• 变化范围: {keff_range:.6f}
-• 最大变化: {max_change_percent:.4f}%
+KEFF Statistics:
+• Minimum: {min_keff:.6f}
+• Maximum: {max_keff:.6f}
+• Average: {avg_keff:.6f}
+• Range: {keff_range:.6f}
+• Max Change: {max_change_percent:.4f}%
 
-参数范围:
-• 第87行: {min(param1_values):.2E} - {max(param1_values):.2E}
-• 第92行: {min(param2_values):.2E} - {max(param2_values):.2E}
-• 比例验证: {self.ratio:.3f}
+Parameter Range:
+• Line 87: {min(param1_values):.2E} - {max(param1_values):.2E}
+• Line 92: {min(param2_values):.2E} - {max(param2_values):.2E}
+• Ratio Check: {self.ratio:.3f}
         """
         
         self.ax_stats.text(0.1, 0.9, stats_text, transform=self.ax_stats.transAxes, 
@@ -338,7 +338,7 @@ KEFF值统计:
         
         sys.stdout.write(f'\r进度: |{bar}| {current}/{total} ({percent:.1%})')
         sys.stdout.flush()
-
+        
     def backup_original_file(self):
         """备份原始文件"""
         backup_name = f"{self.original_file}.backup"
@@ -388,7 +388,7 @@ KEFF值统计:
             original_line_2 = lines[target_line_2_index]
             parts_2 = original_line_2.split()
             if len(parts_2) >= 2:
-                # 替换第2个数据，保持格式一致
+            # 替换第2个数据，保持格式一致
                 new_line_2 = f"   {parts_2[0]}    {new_value_2:.6E}                                                        D 17\n"
                 lines[target_line_2_index] = new_line_2
                 print(f"已修改第{self.target_line_2}行参数值为: {new_value_2:.6E}")
@@ -595,7 +595,7 @@ KEFF值统计:
         # 创建最终分析图表
         fig_final = plt.figure(figsize=(16, 12))
         font_name = 'Times New Roman' if english_font == 'Times New Roman' else english_font
-        fig_final.suptitle('VSOP KEFF 研究结果分析', fontsize=18, fontweight='bold', 
+        fig_final.suptitle('VSOP KEFF Study Results Analysis', fontsize=18, fontweight='bold', 
                           fontname=font_name if font_name else 'DejaVu Sans')
         
         # 准备数据
@@ -718,7 +718,7 @@ Parameter Range:
         if self.enable_visualization:
             input("按回车键关闭图表...")
             plt.close('all')
-
+        
     def restore_original_file(self):
         """恢复原始文件"""
         backup_name = f"{self.original_file}.backup"
@@ -741,7 +741,7 @@ Parameter Range:
         
         # 写入CSV文件
         with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-            fieldnames = ['序号', '第87行参数值', '第92行参数值', 'keff值', 'keff变化', 'keff变化百分比(%)', '输出文件']
+            fieldnames = ['Index', 'Line87_Parameter', 'Line92_Parameter', 'KEFF_Value', 'KEFF_Change', 'KEFF_Change_Percent', 'Output_File']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             
             writer.writeheader()
@@ -750,13 +750,13 @@ Parameter Range:
                 keff_change_percent = (keff_change / first_keff) * 100
                 
                 writer.writerow({
-                    '序号': i,
-                    '第87行参数值': f"{result['parameter_value_1']:.6E}",
-                    '第92行参数值': f"{result['parameter_value_2']:.6E}",
-                    'keff值': f"{result['keff']:.6f}",
-                    'keff变化': f"{keff_change:.6f}",
-                    'keff变化百分比(%)': f"{keff_change_percent:.4f}",
-                    '输出文件': result['output_file']
+                    'Index': i,
+                    'Line87_Parameter': f"{result['parameter_value_1']:.6E}",
+                    'Line92_Parameter': f"{result['parameter_value_2']:.6E}",
+                    'KEFF_Value': f"{result['keff']:.6f}",
+                    'KEFF_Change': f"{keff_change:.6f}",
+                    'KEFF_Change_Percent': f"{keff_change_percent:.4f}",
+                    'Output_File': result['output_file']
                 })
         
         print(f"结果已保存到: {filename}")
@@ -764,31 +764,31 @@ Parameter Range:
         # 保存统计摘要
         summary_filename = "keff_study_summary.txt"
         with open(summary_filename, 'w', encoding='utf-8') as f:
-            f.write("KEFF研究结果统计摘要\n")
+            f.write("KEFF Study Results Summary\n")
             f.write("=" * 40 + "\n\n")
-            f.write("参数设置:\n")
-            f.write(f"  第87行参数值范围: {min(r['parameter_value_1'] for r in self.results):.2E} - {max(r['parameter_value_1'] for r in self.results):.2E}\n")
-            f.write(f"  第92行参数值范围: {min(r['parameter_value_2'] for r in self.results):.2E} - {max(r['parameter_value_2'] for r in self.results):.2E}\n")
-            f.write(f"  比例关系: 7.95:5 = {self.ratio:.3f}\n\n")
-            f.write("结果统计:\n")
-            f.write(f"  keff值范围: {min(keff_values):.6f} - {max(keff_values):.6f}\n")
-            f.write(f"  keff变化范围: {max(keff_values) - min(keff_values):.6f}\n")
+            f.write("Parameter Settings:\n")
+            f.write(f"  Line 87 Parameter Range: {min(r['parameter_value_1'] for r in self.results):.2E} - {max(r['parameter_value_1'] for r in self.results):.2E}\n")
+            f.write(f"  Line 92 Parameter Range: {min(r['parameter_value_2'] for r in self.results):.2E} - {max(r['parameter_value_2'] for r in self.results):.2E}\n")
+            f.write(f"  Ratio Relationship: 7.95:5 = {self.ratio:.3f}\n\n")
+            f.write("Results Statistics:\n")
+            f.write(f"  KEFF Value Range: {min(keff_values):.6f} - {max(keff_values):.6f}\n")
+            f.write(f"  KEFF Change Range: {max(keff_values) - min(keff_values):.6f}\n")
             
             max_change_percent = max(abs((k - first_keff) / first_keff * 100) for k in keff_values)
-            f.write(f"  最大变化百分比: {max_change_percent:.4f}%\n")
-            f.write(f"  平均keff值: {sum(keff_values) / len(keff_values):.6f}\n")
-            f.write(f"  总计算次数: {len(self.results)}\n")
+            f.write(f"  Max Change Percentage: {max_change_percent:.4f}%\n")
+            f.write(f"  Average KEFF Value: {sum(keff_values) / len(keff_values):.6f}\n")
+            f.write(f"  Total Calculations: {len(self.results)}\n")
         
         print(f"统计摘要已保存到: {summary_filename}")
         
         # 打印简要统计
-        print("\n=== 结果统计 ===")
-        print(f"第77行参数值范围: {min(r['parameter_value_1'] for r in self.results):.2E} - {max(r['parameter_value_1'] for r in self.results):.2E}")
-        print(f"第92行参数值范围: {min(r['parameter_value_2'] for r in self.results):.2E} - {max(r['parameter_value_2'] for r in self.results):.2E}")
-        print(f"keff值范围: {min(keff_values):.6f} - {max(keff_values):.6f}")
-        print(f"keff变化范围: {max(keff_values) - min(keff_values):.6f}")
+        print("\n=== Results Statistics ===")
+        print(f"Line 87 Parameter Range: {min(r['parameter_value_1'] for r in self.results):.2E} - {max(r['parameter_value_1'] for r in self.results):.2E}")
+        print(f"Line 92 Parameter Range: {min(r['parameter_value_2'] for r in self.results):.2E} - {max(r['parameter_value_2'] for r in self.results):.2E}")
+        print(f"KEFF Value Range: {min(keff_values):.6f} - {max(keff_values):.6f}")
+        print(f"KEFF Change Range: {max(keff_values) - min(keff_values):.6f}")
         max_change_percent = max(abs((k - first_keff) / first_keff * 100) for k in keff_values)
-        print(f"最大变化百分比: {max_change_percent:.4f}%")
+        print(f"Max Change Percentage: {max_change_percent:.4f}%")
 
 def main():
     """主函数"""
@@ -830,10 +830,10 @@ def main():
     # 设置参数
     while True:
         try:
-            print("\n请设置研究参数（第87行参数值）:")
-            start_val = float(input("起始值 (默认 1e-8): ") or "1e-8")
-            end_val = float(input("结束值 (默认 9e-7): ") or "9e-7")
-            num_points = int(input("计算点数 (默认 9): ") or "9")
+            print("\nPlease set research parameters (Line 87 parameter values):")
+            start_val = float(input("Start value (default 1e-8): ") or "1e-8")
+            end_val = float(input("End value (default 9e-7): ") or "9e-7")
+            num_points = int(input("Number of points (default 9): ") or "9")
             
             if start_val >= end_val:
                 print("错误：起始值必须小于结束值")
@@ -853,13 +853,13 @@ def main():
         num_points=num_points
     )
     
-    print(f"\n将要使用的{len(parameter_values)}个参数值组合:")
-    print("序号 | 第87行参数值    | 第92行参数值    | 比例验证")
-    print("-" * 55)
+    print(f"\nParameter value combinations to be used ({len(parameter_values)} sets):")
+    print("Index | Line 87 Parameter | Line 92 Parameter | Ratio Check")
+    print("-" * 60)
     for i, val in enumerate(parameter_values, 1):
         val_2 = val / automation.ratio
         ratio_check = val / val_2
-        print(f"{i:2d}   | {val:.6E} | {val_2:.6E} | {ratio_check:.3f}")
+        print(f"{i:2d}    | {val:.6E}   | {val_2:.6E}   | {ratio_check:.3f}")
     
     print(f"\n预计总运行时间: 约{len(parameter_values) * 2}分钟")
     
