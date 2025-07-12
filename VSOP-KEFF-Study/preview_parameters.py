@@ -37,7 +37,7 @@ def preview_parameters():
     print("VSOP KEFF 参数值预览工具 - 双参数版本")
     print("=" * 60)
     print("本工具将预览双参数研究的参数分布：")
-    print("  - 第77行第2个数据（主参数）")
+    print("  - 第87行第2个数据（主参数）")
     print("  - 第92行第2个数据（从参数，比例 = 主参数 / 1.59）")
     print("  - 比例关系：7.95:5")
     print("=" * 60)
@@ -68,8 +68,8 @@ def preview_parameters():
                 break
             elif choice == len(presets) + 1:
                 print("\n自定义设置:")
-                start = float(input("第77行起始值: "))
-                end = float(input("第77行结束值: "))
+                start = float(input("第87行起始值: "))
+                end = float(input("第87行结束值: "))
                 num_points = int(input("计算点数: "))
                 
                 if start >= end:
@@ -85,8 +85,8 @@ def preview_parameters():
             print("输入错误，请输入数字")
     
     print(f"\n参数设置:")
-    print(f"  第77行起始值: {start:.2E}")
-    print(f"  第77行结束值: {end:.2E}")
+    print(f"  第87行起始值: {start:.2E}")
+    print(f"  第87行结束值: {end:.2E}")
     print(f"  计算点数: {num_points}")
     print(f"  比例关系: 7.95:5 = {ratio:.3f}")
     print()
@@ -99,7 +99,7 @@ def preview_parameters():
     
     print(f"生成的{len(values)}个双参数值组合:")
     print("-" * 80)
-    print("序号 | 第77行参数值    | 第92行参数值    | 比例验证  | 步进倍数")
+    print("序号 | 第87行参数值    | 第92行参数值    | 比例验证  | 步进倍数")
     print("-" * 80)
     
     for i, val in enumerate(values, 1):
@@ -118,10 +118,10 @@ def preview_parameters():
     values_2 = [val / ratio for val in values]
     
     print(f"\n双参数统计:")
-    print(f"  第77行参数值范围: {min(values):.2E} - {max(values):.2E}")
+    print(f"  第87行参数值范围: {min(values):.2E} - {max(values):.2E}")
     print(f"  第92行参数值范围: {min(values_2):.2E} - {max(values_2):.2E}")
-    print(f"  第77行最小步进倍数: {min(values[i]/values[i-1] for i in range(1, len(values))):.3f}")
-    print(f"  第77行最大步进倍数: {max(values[i]/values[i-1] for i in range(1, len(values))):.3f}")
+    print(f"  第87行最小步进倍数: {min(values[i]/values[i-1] for i in range(1, len(values))):.3f}")
+    print(f"  第87行最大步进倍数: {max(values[i]/values[i-1] for i in range(1, len(values))):.3f}")
     
     # 验证比例关系
     ratios = [values[i] / values_2[i] for i in range(len(values))]
@@ -140,7 +140,7 @@ def preview_parameters():
         print(f"  推荐分为{num_batches}批运行")
     
     # 参数分布可视化（文本版）
-    print(f"\n第77行参数值分布可视化:")
+    print(f"\n第87行参数值分布可视化:")
     print("  " + "起始值".ljust(12) + "分布区间".ljust(40) + "结束值")
     
     # 创建简单的文本分布图
@@ -182,13 +182,13 @@ def preview_parameters():
             f.write("VSOP KEFF 双参数值预览\n")
             f.write("=" * 50 + "\n\n")
             f.write(f"参数设置:\n")
-            f.write(f"  第77行起始值: {start:.2E}\n")
-            f.write(f"  第77行结束值: {end:.2E}\n")
+            f.write(f"  第87行起始值: {start:.2E}\n")
+            f.write(f"  第87行结束值: {end:.2E}\n")
             f.write(f"  计算点数: {num_points}\n")
             f.write(f"  比例关系: 7.95:5 = {ratio:.3f}\n\n")
             
             f.write("参数值列表:\n")
-            f.write("序号\t第77行参数值\t第92行参数值\t比例验证\n")
+            f.write("序号\t第87行参数值\t第92行参数值\t比例验证\n")
             for i, val in enumerate(values, 1):
                 val_2 = val / ratio
                 ratio_check = val / val_2

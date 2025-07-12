@@ -53,30 +53,30 @@ def test_setup():
         else:
             print(f"❌ {file} - 文件不存在")
     
-    # 测试first_begin.i第77行和第92行
+    # 测试first_begin.i第87行和第92行
     print("\n检查first_begin.i双参数配置:")
     try:
         with open("first_begin.i", 'r', encoding='utf-8') as f:
             lines = f.readlines()
         
-        # 检查第77行
-        if len(lines) >= 77:
-            target_line_77 = lines[76]  # 第77行，索引76
-            print(f"第77行内容: {target_line_77.strip()}")
+        # 检查第87行
+        if len(lines) >= 87:
+            target_line_87 = lines[86]  # 第87行，索引86
+            print(f"第87行内容: {target_line_87.strip()}")
             
-            parts_77 = target_line_77.split()
-            if len(parts_77) >= 2:
+            parts_87 = target_line_87.split()
+            if len(parts_87) >= 2:
                 try:
-                    value_77 = float(parts_77[1])
-                    print(f"✅ 第77行参数值: {value_77:.6E}")
+                    value_87 = float(parts_87[1])
+                    print(f"✅ 第87行参数值: {value_87:.6E}")
                 except ValueError:
-                    print(f"❌ 无法解析第77行参数值: {parts_77[1]}")
+                    print(f"❌ 无法解析第87行参数值: {parts_87[1]}")
                     success = False
             else:
-                print("❌ 第77行格式不正确")
+                print("❌ 第87行格式不正确")
                 success = False
         else:
-            print("❌ 文件行数不足77行")
+            print("❌ 文件行数不足87行")
             success = False
         
         # 检查第92行
@@ -91,9 +91,9 @@ def test_setup():
                     print(f"✅ 第92行参数值: {value_92:.6E}")
                     
                     # 验证比例关系
-                    if len(parts_77) >= 2 and len(parts_92) >= 2:
+                    if len(parts_87) >= 2 and len(parts_92) >= 2:
                         try:
-                            ratio_actual = value_77 / value_92
+                            ratio_actual = value_87 / value_92
                             ratio_expected = 7.95 / 5.0
                             ratio_diff = abs(ratio_actual - ratio_expected) / ratio_expected * 100
                             
@@ -193,7 +193,7 @@ def test_setup():
     if success:
         print("✅ 基本配置检查通过！可以运行KEFF研究脚本")
         print("\n双参数版本特性:")
-        print("  ✅ 同时修改第77行和第92行参数")
+        print("  ✅ 同时修改第87行和第92行参数")
         print("  ✅ 自动保持7.95:5的比例关系")
         print("  ✅ 完整的双参数结果追踪")
         print("\n推荐运行方式:")

@@ -17,7 +17,7 @@ class KeffStudyAutomation:
     def __init__(self):
         self.original_file = "first_begin.i"
         self.program_path = "VSOP99_11-MS.exe"
-        self.target_line_1 = 77  # 第1个目标行号
+        self.target_line_1 = 87  # 第1个目标行号
         self.target_line_2 = 92  # 第2个目标行号
         self.ratio = 7.95 / 5.0  # 第1个数据与第2个数据的比例 (7.95:5)
         self.results = []
@@ -33,7 +33,7 @@ class KeffStudyAutomation:
         """修改输入文件中的参数值
         
         Args:
-            new_value_1: 第77行第2个数据的新值
+            new_value_1: 第87行第2个数据的新值
         """
         try:
             with open(self.original_file, 'r', encoding='utf-8') as f:
@@ -48,7 +48,7 @@ class KeffStudyAutomation:
         
         success = True
         
-        # 修改第77行的第2个数据
+        # 修改第87行的第2个数据
         target_line_1_index = self.target_line_1 - 1
         if target_line_1_index < len(lines):
             original_line_1 = lines[target_line_1_index]
@@ -203,7 +203,7 @@ class KeffStudyAutomation:
         
         print(f"开始keff研究，共{len(parameter_values)}个参数值")
         print(f"参数范围: {parameter_values[0]:.2E} 到 {parameter_values[-1]:.2E}")
-        print(f"比例关系: 第77行:第92行 = 7.95:5")
+        print(f"比例关系: 第87行:第92行 = 7.95:5")
         
         # 备份原始文件
         self.backup_original_file()
@@ -211,7 +211,7 @@ class KeffStudyAutomation:
         start_time = time.time()
         
         for i, value in enumerate(parameter_values, 1):
-            print(f"\n=== 运行 {i}/{len(parameter_values)}: 第77行参数值 = {value:.6E} ===")
+            print(f"\n=== 运行 {i}/{len(parameter_values)}: 第87行参数值 = {value:.6E} ===")
             value_2 = value / self.ratio
             print(f"    对应第92行参数值 = {value_2:.6E}")
             iteration_start = time.time()
@@ -272,7 +272,7 @@ class KeffStudyAutomation:
         df = df[['parameter_value_1', 'parameter_value_2', 'keff', 'keff_change', 'keff_change_percent', 'output_file']]
         
         # 重命名列
-        df.columns = ['第77行参数值', '第92行参数值', 'keff值', 'keff变化', 'keff变化百分比(%)', '输出文件']
+        df.columns = ['第87行参数值', '第92行参数值', 'keff值', 'keff变化', 'keff变化百分比(%)', '输出文件']
         
         # 保存到Excel
         with pd.ExcelWriter(filename, engine='openpyxl') as writer:
@@ -282,7 +282,7 @@ class KeffStudyAutomation:
             # 统计摘要表
             summary_data = {
                 '项目': [
-                    '第77行参数值范围',
+                    '第87行参数值范围',
                     '第92行参数值范围',
                     '比例关系',
                     'keff值范围',
@@ -292,7 +292,7 @@ class KeffStudyAutomation:
                     '总计算次数'
                 ],
                 '值': [
-                    f"{df['第77行参数值'].min():.2E} - {df['第77行参数值'].max():.2E}",
+                    f"{df['第87行参数值'].min():.2E} - {df['第87行参数值'].max():.2E}",
                     f"{df['第92行参数值'].min():.2E} - {df['第92行参数值'].max():.2E}",
                     f"7.95:5 = {self.ratio:.3f}",
                     f"{df['keff值'].min():.6f} - {df['keff值'].max():.6f}",
@@ -310,7 +310,7 @@ class KeffStudyAutomation:
         
         # 显示简要统计
         print(f"\n=== 结果统计 ===")
-        print(f"第77行参数值范围: {df['第77行参数值'].min():.2E} - {df['第77行参数值'].max():.2E}")
+        print(f"第87行参数值范围: {df['第87行参数值'].min():.2E} - {df['第87行参数值'].max():.2E}")
         print(f"第92行参数值范围: {df['第92行参数值'].min():.2E} - {df['第92行参数值'].max():.2E}")
         print(f"keff值范围: {df['keff值'].min():.6f} - {df['keff值'].max():.6f}")
         print(f"keff变化范围: {df['keff值'].max() - df['keff值'].min():.6f}")
@@ -321,7 +321,7 @@ def main():
     print("VSOP KEFF 自动化研究脚本 - 双参数版本")
     print("=" * 50)
     print("本脚本将同时修改两个参数:")
-    print("  - 第77行第2个数据")
+    print("  - 第87行第2个数据")
     print("  - 第92行第2个数据")
     print("  - 保持比例关系 7.95:5")
     print("=" * 50)
@@ -341,7 +341,7 @@ def main():
         return
     
     # 设置参数
-    print("\n请设置研究参数（第77行参数值）:")
+    print("\n请设置研究参数（第87行参数值）:")
     start_val = float(input("起始值 (默认 1e-8): ") or "1e-8")
     end_val = float(input("结束值 (默认 9e-7): ") or "9e-7")
     num_points = int(input("计算点数 (默认 9): ") or "9")
@@ -354,7 +354,7 @@ def main():
     )
     
     print(f"\n将要使用的{len(parameter_values)}个参数值组合:")
-    print("序号 | 第77行参数值    | 第92行参数值    | 比例验证")
+    print("序号 | 第87行参数值    | 第92行参数值    | 比例验证")
     print("-" * 55)
     for i, val in enumerate(parameter_values, 1):
         val_2 = val / automation.ratio
